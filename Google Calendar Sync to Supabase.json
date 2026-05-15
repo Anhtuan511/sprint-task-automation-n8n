@@ -1,0 +1,108 @@
+{
+  "name": "Google Calendar Sync to Supabase",
+  "nodes": [
+    {
+      "parameters": {
+        "tableId": "events",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "title",
+              "fieldValue": "={{ $json.summary }}"
+            },
+            {
+              "fieldId": "event_date",
+              "fieldValue": "={{ $json.start.dateTime }}"
+            },
+            {
+              "fieldId": "type",
+              "fieldValue": "meeting"
+            },
+            {
+              "fieldId": "project_id",
+              "fieldValue": "=1"
+            },
+            {
+              "fieldId": "time",
+              "fieldValue": "={{ $json.start.dateTime }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        208,
+        0
+      ],
+      "id": "12581be3-06fa-430d-8f2b-fc26eef1b8c0",
+      "name": "Create a row",
+      "credentials": {
+        "supabaseApi": {
+          "id": "hFNDCEeBJnw7J7Ca",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "calendarId": {
+          "__rl": true,
+          "value": "tuananh5112005@gmail.com",
+          "mode": "list",
+          "cachedResultName": "tuananh5112005@gmail.com"
+        },
+        "triggerOn": "eventCreated",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleCalendarTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "ff8f7777-552b-4c4e-af04-d3109dc7a62c",
+      "name": "Google Calendar Trigger",
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "Wy1Y9EsZj72w1DE0",
+          "name": "Google Calendar account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Google Calendar Trigger": {
+      "main": [
+        [
+          {
+            "node": "Create a row",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "b476320f-5d15-40c8-b81d-7df7a0536aad",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "14efbaff3c741f90c9aaca5c6fe1e0bab876c9751d61aeaa4baa87836c93d203"
+  },
+  "id": "YiE7uUZXOFb8B4Rp",
+  "tags": []
+}
