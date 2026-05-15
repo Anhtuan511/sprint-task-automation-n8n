@@ -1,0 +1,27 @@
+services:
+  # 1. Giao diện Web Next.js (Dành cho bạn)
+  frontend:
+    build: .
+    container_name: web_interface
+    ports:
+      - "3000:3000"
+    restart: always
+    # Nếu bạn cần truyền key Supabase vào Web, hãy thêm ở đây
+    environment:
+      - NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
+      - NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+
+  # 2. n8n Automation (Dành cho bạn kia)
+  n8n:
+    image: docker.n8n.io/n8nio/n8n:latest
+    container_name: n8n_automation
+    restart: always
+    ports:
+      - "5678:5678"
+    environment:
+      - N8N_BASIC_AUTH_ACTIVE=true
+      - N8N_BASIC_AUTH_USER=admin
+      - N8N_BASIC_AUTH_PASSWORD=lethihavy_n8n
+      - GENERIC_TIMEZONE=Asia/Ho_Chi_Minh
+    volumes:
+      - ./n8n_data:/home/node/.n8n
