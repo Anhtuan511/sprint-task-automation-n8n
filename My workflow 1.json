@@ -1,0 +1,302 @@
+{
+  "name": "My workflow 1",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "generate-tasks",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -208,
+        16
+      ],
+      "id": "cba472b0-fa1d-4059-99df-e057dd658865",
+      "name": "Webhook",
+      "webhookId": "b5af1b42-b77d-4061-a4d4-fe34ad20d939"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Hôm nay là ngày {{ $now.format('YYYY-MM-DD') }}.\n\nTôi có một đầu việc là {{ $node[\"Create a row1\"].json[\"name\"] }}.\n\nHãy chia nó thành 5 task nhỏ cụ thể để hoàn thành công việc này.\n\nYÊU CẦU QUAN TRỌNG:\n\n    CHỈ TRẢ VỀ JSON THUẦN TÚY: Kết quả phải nằm trong một đối tượng có key là tasks theo đúng cấu trúc sau:\n    {\"tasks\": [{\"task_name\": \"...\", \"description\": \"...\", \"due_date\": \"...\", \"assignee_id\": \"...\"}, ...]}\n\n    NỘI DUNG TASK:\n\n        Tự suy luận các bước thực hiện dựa trên tên dự án. Không dùng các câu như \"Chờ đợi thông tin\" hay \"Cần thêm dữ liệu\".\n\n        Với mỗi task, viết một description ngắn gọn mô tả hành động cần làm.\n\n    THỜI HẠN (due_date):\n\n        Đặt là ngày hiện tại cộng thêm 3 ngày (định dạng YYYY-MM-DD).\n\n    NHÂN SỰ (assignee_id):\n\n        Gán assignee_id ngẫu nhiên cho mỗi task từ danh sách ID nhân viên sau:\n\n            John Doe: 0c483f3b-1a87-4bd5-8a6c-e5ac8eefee30\n\n            Sarah Chen: 0f14ee16-231c-4e81-aee9-5598c638ecfc\n\n            Mike Johnson: 1608522b-6093-418e-a012-8f38b39bd819\n\nCHÚ Ý: KHÔNG dùng ký tự json hay . KHÔNG thêm bất kỳ lời dẫn giải, lời chào hay giải thích nào trước và sau khối JSON.",
+        "hasOutputParser": true,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        208,
+        16
+      ],
+      "id": "6e0d2043-2fa2-4377-9b3c-7e6b6dfd75de",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        208,
+        272
+      ],
+      "id": "8e5bc172-675b-4ec2-94b4-e01f3620e618",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "z6tF2Ca49HGmqO6x",
+          "name": "Google Gemini(PaLM) Api account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n  \"tasks\": [\n    {\n      \"task_name\": \"Tên công việc\",\n      \"description\": \"Mô tả chi tiết việc cần làm\",\n      \"assignee_id\": \"Mã ID người nhận\",\n      \"due_date\": \"YYYY-MM-DD\"\n    }\n  ]\n}",
+        "autoFix": true
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        400,
+        272
+      ],
+      "id": "4189f3a9-1c06-4f84-8c66-976d33e04b95",
+      "name": "Structured Output Parser"
+    },
+    {
+      "parameters": {
+        "tableId": "tasks",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "=title",
+              "fieldValue": "={{ $json.task_name }}"
+            },
+            {
+              "fieldId": "project_id",
+              "fieldValue": "={{ $('Create a row1').item.json.id }}"
+            },
+            {
+              "fieldId": "status",
+              "fieldValue": "=todo"
+            },
+            {
+              "fieldId": "priority",
+              "fieldValue": "Medium"
+            },
+            {
+              "fieldId": "description",
+              "fieldValue": "={{ $json.description }}"
+            },
+            {
+              "fieldId": "due_date",
+              "fieldValue": "={{ $json.due_date }}"
+            },
+            {
+              "fieldId": "assignee_id",
+              "fieldValue": "={{ $json.assignee_id }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        672,
+        16
+      ],
+      "id": "662ae022-58ef-4a78-bdce-951874394083",
+      "name": "Create a row",
+      "credentials": {
+        "supabaseApi": {
+          "id": "hFNDCEeBJnw7J7Ca",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "tableId": "projects",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "name",
+              "fieldValue": "={{ $json.body.project_name }}"
+            },
+            {
+              "fieldId": "color",
+              "fieldValue": "bg-blue-500"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        16,
+        16
+      ],
+      "id": "31b4671c-a40d-4180-a108-b48a7444ab27",
+      "name": "Create a row1",
+      "credentials": {
+        "supabaseApi": {
+          "id": "hFNDCEeBJnw7J7Ca",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "tableId": "activities",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "user_name",
+              "fieldValue": "System AI"
+            },
+            {
+              "fieldId": "action",
+              "fieldValue": "Created"
+            },
+            {
+              "fieldId": "target_name",
+              "fieldValue": "={{ $('Webhook').item.json.body.project_name }}"
+            },
+            {
+              "fieldId": "description",
+              "fieldValue": "AI đã tự động lập kế hoạch và tạo danh sách công việc cho dự án này."
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        144,
+        -160
+      ],
+      "id": "f0e9e5a6-c1d6-4135-b5e1-d3a81e92d86f",
+      "name": "Create a row2",
+      "credentials": {
+        "supabaseApi": {
+          "id": "hFNDCEeBJnw7J7Ca",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "output.tasks",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        496,
+        16
+      ],
+      "id": "76e7d094-0b57-4c08-afa0-2ca542891767",
+      "name": "Split Out"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Create a row1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "Structured Output Parser",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Split Out",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a row1": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Create a row2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a row": {
+      "main": [
+        []
+      ]
+    },
+    "Split Out": {
+      "main": [
+        [
+          {
+            "node": "Create a row",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "f7e54646-8c58-4cbe-9122-0966ece1b8e2",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "14efbaff3c741f90c9aaca5c6fe1e0bab876c9751d61aeaa4baa87836c93d203"
+  },
+  "id": "9Zxe3Q84HMxFGTRN",
+  "tags": []
+}
