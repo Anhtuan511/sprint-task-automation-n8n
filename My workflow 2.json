@@ -1,0 +1,151 @@
+{
+  "name": "My workflow 2",
+  "nodes": [
+    {
+      "parameters": {
+        "operation": "getAll",
+        "tableId": "tasks",
+        "limit": 5,
+        "matchType": "allFilters",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "status",
+              "condition": "eq",
+              "keyValue": "todo"
+            },
+            {
+              "keyName": "id",
+              "condition": "gt",
+              "keyValue": "50"
+            },
+            {
+              "keyName": "created_at",
+              "condition": "gt",
+              "keyValue": "={{ $now.minus({minutes: 15}) }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        208,
+        0
+      ],
+      "id": "6d3ba9ee-03a5-4068-8c43-cdc3c0efbfd8",
+      "name": "Get many rows",
+      "credentials": {
+        "supabaseApi": {
+          "id": "hFNDCEeBJnw7J7Ca",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "7372767904",
+        "text": "=**Daily Recap - Danh sách việc cần làm:**\n{{ $json.data.map(t => `\n- Việc: ${t.title}\n  Hạn: ${t.due_date}\n  Mô tả: ${t.description}`).join('\\n') }}\n\nBáo cáo được gửi tự động từ n8n.",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        624,
+        0
+      ],
+      "id": "e827979a-cc36-4c0c-9040-ff7f0a0f6b60",
+      "name": "Send a text message",
+      "webhookId": "6c7d4041-85f0-458e-bd69-b483a52498de",
+      "credentials": {
+        "telegramApi": {
+          "id": "CrzuFrJxkHEdsafx",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "aggregate": "aggregateAllItemData",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        432,
+        0
+      ],
+      "id": "479275aa-56b2-477d-ade6-78695610ca18",
+      "name": "Aggregate"
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes",
+              "minutesInterval": 1
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        0,
+        0
+      ],
+      "id": "b5a3eb12-15b1-42bf-8c20-d0fa8b178a0c",
+      "name": "Schedule Trigger"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Get many rows": {
+      "main": [
+        [
+          {
+            "node": "Aggregate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate": {
+      "main": [
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Get many rows",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "718125df-18ed-4405-8f46-9eedcf652b96",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "14efbaff3c741f90c9aaca5c6fe1e0bab876c9751d61aeaa4baa87836c93d203"
+  },
+  "id": "aqVXP2iFCfvCftv9",
+  "tags": []
+}
